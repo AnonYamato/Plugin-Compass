@@ -1,0 +1,61 @@
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Scoreboard;
+
+import static org.bukkit.inventory.ItemType.COMPASS;
+
+public class Event implements Listener{
+    private Plugin plugin;
+
+    public Event(Plugin plugin){
+        this.plugin = plugin;
+    }
+    @EventHandler
+    public void CompassonRukaEblana(PlayerMoveEvent event){
+        // ПУ ПУ ПУ
+        Player player = event.getPlayer();
+        ItemStack HandItem = player.getInventory().getItem(EquipmentSlot.OFF_HAND);
+
+        if (HandItem != null && HandItem.getType().name().equals("COMPASS")) {
+            Location loca = player.getLocation();
+            Scoreboard Cordinates = player.getScoreboard();
+
+            if (Cordinates == Bukkit.getScoreboardManager().getMainScoreboard()) {
+                Cordinates = Bukkit.getScoreboardManager().getNewScoreboard();
+            }
+            Objective objective = Cordinates.getObjective("coords");
+            if (objective == null) {
+                objective = Cordinates.registerNewObjective("coords", "dummy", ChatColor.DARK_GREEN + "Координаты");
+                objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+            }
+
+                String cordText = "X: " + loca.getBlockX() + " Y: " + loca.getBlockY() + " Z: " + loca.getBlockZ();
+
+            for (String entry : Cordinates.getEntries()){
+                    Cordinates.resetScores(entry);
+            }
+
+            objective.getScore(cordText).setScore(1);
+            player.setScoreboard(Cordinates);
+        } else {
+            player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
+            }
+        }
+    }
+
+// в главном классе
+
+
+@Override
+    public void onEnable() {
+        Bukkit.getPluginManager().registerEvents(new Event (this), this);
